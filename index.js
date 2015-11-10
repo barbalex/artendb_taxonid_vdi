@@ -37,16 +37,34 @@ adb.view('artendb', 'objekte', {
   if (error) return console.log(error)
   let docs = []
   let docsPrepared = 0
-  body.rows.forEach((row) => {
+  body.rows.forEach((row, index) => {
     const doc = row.doc
     if (doc.Gruppe && doc.Taxonomie && doc.Taxonomie.Eigenschaften && doc.Taxonomie.Eigenschaften['Taxonomie ID']) {
-      doc.Taxonomie.Eigenschaften['Taxon ID VDI'] = presetHash[doc.Gruppe] + doc.Taxonomie.Eigenschaften['Taxonomie ID']
-      docs.push(doc)
-      if (docs.length > 600) {
-        docsPrepared = docsPrepared + docs.length
-        console.log('docsPrepared', docsPrepared)
-        // save 600 docs
-        bulkSave(docs.splice(0, 600))
+      const taxonomieId = doc.Taxonomie.Eigenschaften['Taxonomie ID']
+      let save = false
+      if (taxonomieId < 1000000) {
+        const taxonIdVdi = presetHash[doc.Gruppe] + taxonomieId
+        if (doc.Taxonomie.Eigenschaften['Taxon ID VDI'] !== taxonIdVdi) {
+          doc.Taxonomie.Eigenschaften['Taxon ID VDI'] = presetHash[doc.Gruppe] + taxonomieId
+          save = true
+        }
+
+      } else {
+        // this species was added by FNS > no VDI ID needed
+        if (doc.Taxonomie.Eigenschaften['Taxon ID VDI']) {
+          delete doc.Taxonomie.Eigenschaften['Taxon ID VDI']
+          save = true
+        }
+      }
+      if (save) {
+        // only save if something was changed
+        docs.push(doc)
+        if ((docs.length > 600) || (index === body.rows.length - 1)) {
+          docsPrepared = docsPrepared + docs.length
+          console.log('docsPrepared', docsPrepared)
+          // save 600 docs
+          bulkSave(docs.splice(0, 600))
+        }
       }
     }
   })
