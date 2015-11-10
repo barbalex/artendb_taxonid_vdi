@@ -1,7 +1,7 @@
 'use strict'
 
 /**
- * add field 'Taxon ID VDI'
+ * add field 'Taxon ID VDC'
  * Fauna: infospecies.ch:infofauna:TaxonomieId
  * Flora: infospecies.ch:infoflora:TaxonomieId
  * Moose: infospecies.ch:nism:TaxonomieId
@@ -43,16 +43,16 @@ adb.view('artendb', 'objekte', {
       const taxonomieId = doc.Taxonomie.Eigenschaften['Taxonomie ID']
       let save = false
       if (taxonomieId < 1000000) {
-        const taxonIdVdi = presetHash[doc.Gruppe] + taxonomieId
-        if (doc.Taxonomie.Eigenschaften['Taxon ID VDI'] !== taxonIdVdi) {
-          doc.Taxonomie.Eigenschaften['Taxon ID VDI'] = presetHash[doc.Gruppe] + taxonomieId
+        const taxonIdVdc = presetHash[doc.Gruppe] + taxonomieId
+        if (doc.Taxonomie.Eigenschaften['Taxon ID VDC'] !== taxonIdVdc) {
+          doc.Taxonomie.Eigenschaften['Taxon ID VDC'] = presetHash[doc.Gruppe] + taxonomieId
           save = true
         }
 
       } else {
-        // this species was added by FNS > no VDI ID needed
-        if (doc.Taxonomie.Eigenschaften['Taxon ID VDI']) {
-          delete doc.Taxonomie.Eigenschaften['Taxon ID VDI']
+        // this species was added by FNS > no VDC ID needed
+        if (doc.Taxonomie.Eigenschaften['Taxon ID VDC']) {
+          delete doc.Taxonomie.Eigenschaften['Taxon ID VDC']
           save = true
         }
       }
