@@ -40,21 +40,17 @@ adb.view('artendb', 'objekte', {
   body.rows.forEach((row, index) => {
     const doc = row.doc
     if (doc.Gruppe && doc.Taxonomie && doc.Taxonomie.Eigenschaften && doc.Taxonomie.Eigenschaften['Taxonomie ID']) {
-      const taxonomieId = doc.Taxonomie.Eigenschaften['Taxonomie ID']
       let save = false
+      if (doc.Taxonomie.Eigenschaften['Taxon ID VDI']) {
+        // first time they were named wrong
+        delete doc.Taxonomie.Eigenschaften['Taxon ID VDI']
+        save = true
+      }
+      const taxonomieId = doc.Taxonomie.Eigenschaften['Taxonomie ID']
       if (taxonomieId < 1000000) {
         const taxonIdVdc = presetHash[doc.Gruppe] + taxonomieId
-        if (doc.Taxonomie.Eigenschaften['Taxon ID VDC'] !== taxonIdVdc) {
-          doc.Taxonomie.Eigenschaften['Taxon ID VDC'] = presetHash[doc.Gruppe] + taxonomieId
-          save = true
-        }
-
-      } else {
-        // this species was added by FNS > no VDC ID needed
-        if (doc.Taxonomie.Eigenschaften['Taxon ID VDC']) {
-          delete doc.Taxonomie.Eigenschaften['Taxon ID VDC']
-          save = true
-        }
+        doc.Taxonomie.Eigenschaften['Taxon ID VDC'] = taxonIdVdc
+        save = true
       }
       if (save) {
         // only save if something was changed
